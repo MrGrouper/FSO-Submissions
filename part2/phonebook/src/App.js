@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import Name from "./components/Name";
 
 const Filter = (props) => {
@@ -39,6 +40,17 @@ const App = (props) => {
   const [newPhone, setNewPhone] = useState("");
 
   const [newSearch, setNewSearch] = useState("");
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/persons')
+      .then(response => { 
+        console.log('promise fulfilled')
+        setPersons(response.data)
+      })
+}, [])
+console.log('render', persons.length, 'persons')
 
   const addName = (event) => {
     const found = persons.find(
@@ -96,9 +108,7 @@ const App = (props) => {
       <h3>Numbers</h3>
       
         {personsToShow.map((person) => (
-          
             <Name key={person.name} name={person.name} phone={person.phone} />
-          
         ))}
       
     </div>
