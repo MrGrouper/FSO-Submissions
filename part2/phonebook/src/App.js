@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import Name from "./components/Name";
+import Name from "./components/Name"
+import personService from './services/persons'
+
+console.log(personService)
 
 const Filter = (props) => {
-  console.log(props);
   return (
     <div>
       filter shown with:
@@ -30,10 +32,10 @@ const PersonForm = (props) => {
   );
 };
 
+
+
 const App = (props) => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", phone: "040-1234567" },
-  ]);
+  const [persons, setPersons] = useState([]);
 
   const [newName, setNewName] = useState("");
 
@@ -42,33 +44,40 @@ const App = (props) => {
   const [newSearch, setNewSearch] = useState("");
 
   useEffect(() => {
-    console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => { 
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    personService
+      .getAll()
+      .then(initialPersons =>{
+        setPersons(initialPersons)
       })
 }, [])
-console.log('render', persons.length, 'persons')
+
+console.log(persons)
 
   const addName = (event) => {
+
+    // logic for 2.9
     const found = persons.find(
       (element) => JSON.stringify(element.name) === JSON.stringify(newName)
     );
 
     if (found) {
       alert(`${newName} is already added to phonebook`);
-    } else {
+      return
+    } 
+
       event.preventDefault();
       const personObj = {
         name: newName,
-        phone: newPhone,
+        number: newPhone,
       };
-      setNewName("");
-      setNewPhone("");
-      setPersons(persons.concat(personObj));
-    }
+
+      personService
+      .create(personObj)
+      .then(returnedPerson =>{
+        setPersons(persons.concat(returnedPerson))
+        setNewName("");
+        setNewPhone("");
+      })
   };
 
   const handleNameChange = (event) => {
@@ -83,6 +92,11 @@ console.log('render', persons.length, 'persons')
     console.log(event.target.value);
     setNewSearch(event.target.value);
   };
+
+  const handleDelete = (event) => {
+    console.log('click');
+  };
+
 
   const search = persons.filter((str) =>
     str.name.toLowerCase().includes(newSearch.toLowerCase())
@@ -108,7 +122,7 @@ console.log('render', persons.length, 'persons')
       <h3>Numbers</h3>
       
         {personsToShow.map((person) => (
-            <Name key={person.name} name={person.name} phone={person.phone} />
+            <Name key={person.name} name={person.name} phone={person.number} handleDelete={handleDelete} />
         ))}
       
     </div>
