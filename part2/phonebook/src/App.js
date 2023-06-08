@@ -30,16 +30,26 @@ const PersonForm = (props) => {
   );
 };
 
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div className='notification'>
+      {message}
+    </div>
+  )
+}
+
 
 
 const App = (props) => {
   const [persons, setPersons] = useState([]);
-
   const [newName, setNewName] = useState("");
-
   const [newPhone, setNewPhone] = useState("");
-
   const [newSearch, setNewSearch] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState('')
 
   useEffect(() => {
     personService
@@ -92,6 +102,12 @@ const App = (props) => {
         setPersons(persons.concat(returnedPerson))
         setNewName("");
         setNewPhone("");
+        setNotificationMessage(          
+          `'${personObj.name}' was successfully added`        
+          )        
+          setTimeout(() => {          
+            setNotificationMessage(null)        
+          }, 5000)
       })
   };
 
@@ -120,6 +136,7 @@ const App = (props) => {
   return (
     <div>
       <h2>Phonebook</h2>
+            <Notification message={notificationMessage} />
       <Filter newSearch={newSearch} handleSearch={handleSearch} />
 
       <h3>add a new</h3>
