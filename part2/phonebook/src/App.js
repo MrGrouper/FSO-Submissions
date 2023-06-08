@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import Name from "./components/Name"
 import personService from './services/persons'
 
-console.log(personService)
 
 const Filter = (props) => {
   return (
@@ -51,7 +49,24 @@ const App = (props) => {
       })
 }, [])
 
-console.log(persons)
+ const deletePerson = id =>{
+  if(window.confirm("Are you sure you want to do that?")){
+  const person = persons.find(n => n.id === id)
+  const deletedPerson = persons.filter(n => n.id !== id)
+
+  personService
+  .deletePerson(id, deletedPerson)
+  .then(      
+    setPersons(deletedPerson)  
+  )
+  .catch(error => { 
+    alert(  
+      `${person.name} was already deleted from server` 
+    )
+    setPersons(persons.filter(n => n.id !== id))
+  })
+}
+ }
 
   const addName = (event) => {
 
@@ -93,13 +108,11 @@ console.log(persons)
     setNewSearch(event.target.value);
   };
 
-  const handleDelete = (event) => {
-    console.log('click');
-  };
 
 
-  const search = persons.filter((str) =>
-    str.name.toLowerCase().includes(newSearch.toLowerCase())
+  const search = persons.filter((str) => {
+    return str.name.toLowerCase().includes(newSearch.toLowerCase())
+  }
   );
 
   const personsToShow = search ? search : persons;
@@ -122,7 +135,7 @@ console.log(persons)
       <h3>Numbers</h3>
       
         {personsToShow.map((person) => (
-            <Name key={person.name} name={person.name} phone={person.number} handleDelete={handleDelete} />
+            <Name key={person.name} name={person.name} phone={person.number} deletePerson={()=>deletePerson(person.id)}/>
         ))}
       
     </div>
